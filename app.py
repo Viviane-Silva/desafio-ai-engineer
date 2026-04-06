@@ -1,6 +1,7 @@
 import streamlit as st
 import database.database as db
 from agent.graph import criar_graph
+from agent.graph import escolher_grafico
 
 # st.set_page_config(layout="wide")
 
@@ -39,7 +40,13 @@ if pergunta:
         st.dataframe(df)
 
         # gráfico automático
-        if len(df.columns) == 2:
-            st.bar_chart(df)
-        elif any("data" in col.lower() for col in df.columns):
+        tipo = escolher_grafico(df)
+
+        if tipo == "linha":
             st.line_chart(df)
+
+        elif tipo == "barra":
+            st.bar_chart(df)
+
+        else:
+            st.dataframe(df)

@@ -79,5 +79,18 @@ def criar_graph():
     )
 
     builder.add_edge("corrigir_sql", "executar_sql")
-
     return builder.compile()
+
+
+def escolher_grafico(df):
+    colunas = [col.lower() for col in df.columns]
+
+    
+    if any("data" in c or "mes" in c or "ano" in c for c in colunas):
+        return "linha"
+
+    # Identifica comparação simples
+    if len(df.columns) == 2:
+        return "barra"
+
+    return "tabela"
