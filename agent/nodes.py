@@ -26,7 +26,7 @@ def gerar_sql(pergunta, schema):
     - "quais/liste" → não use LIMIT
     - Retorne APENAS SQL
     - Se a pergunta não corresponder aos dados do schema, retornar:
-       "Essa pergunta não pode ser respondida com os dados disponíveis no banco."
+       "Esta pergunta não pode ser atendida com os dados disponíveis."
     """
 
     sql = ask_llm(prompt)
