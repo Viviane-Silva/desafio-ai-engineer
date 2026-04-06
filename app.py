@@ -37,16 +37,25 @@ if pergunta:
 
     if "df" in resultado:
         df = resultado["df"]
-        st.dataframe(df)
+        # st.dataframe(df)
 
         # gráfico automático
-        tipo = escolher_grafico(df)
+        #  valor único 
+        if df.shape == (1, 1):
+            valor = df.iloc[0, 0]
+            st.metric(label="Resultado", value=valor)
 
-        if tipo == "linha":
-            st.line_chart(df)
-
-        elif tipo == "barra":
-            st.bar_chart(df)
-
+        #  se não, gera tabela/gráfico
         else:
             st.dataframe(df)
+
+            tipo = escolher_grafico(df)
+
+            if tipo in ["linha", "barra"]:
+                df_plot = df.copy()
+                df_plot = df_plot.set_index(df_plot.columns[0])
+
+                if tipo == "linha":
+                    st.line_chart(df_plot)
+                else:
+                    st.bar_chart(df_plot)
