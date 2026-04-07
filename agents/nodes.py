@@ -10,54 +10,84 @@ def planejar(pergunta):
 
     Retorne lista de passos.
     """
+    return ask_llm(prompt)
 
-    resposta = ask_llm(prompt)
-    return resposta
 
 def limpar_sql(sql):
-    return sql.replace("```sql", "").replace("```", "").strip()
+    if not sql:
+        return ""
+
+    sql = sql.replace("```sql", "").replace("```", "").strip()
+
+    # garante que começa no SELECT
+    if "select" in sql.lower():
+        sql = sql[sql.lower().find("select"):]
+
+    return sql.strip()
 
 
 def gerar_sql(pergunta, schema, plano=None):
-    prompt = f"""
-    Você é especialista em SQL SQLite.
 
-    Estrutura do banco:
+    BASE_RULES = """
+    - Use apenas tabelas do schema
+    - Normalize textos com LOWER(TRIM())
+    - Datas estão no formato YYYY-MM-DD
+    - Use STRFTIME('%m') para mês
+    - Toda comparação de texto deve usar LOWER(TRIM(coluna))
+    - Retorne apenas SQL
+    - Se não souber: INDISPONIVEL
+    """
+
+    prompt = f"""
+    Gere uma query SQL (SQLite).
+
+    Schema:
     {schema}
 
-    Gere uma query SQL para responder:
+    Pergunta:
     {pergunta}
 
-    Regras:
+    Plano:
+    {plano}
 
-    - Use apenas tabelas e colunas do schema
-    - Use JOIN apenas se necessário
-    - Clientes → COUNT(DISTINCT cliente_id)
-    - Compras/Reclamações → COUNT(*)
-    - Use LOWER() para comparações de texto
-    - Se não houver ano, filtre apenas por mês
-    - "top N" → use LIMIT N
-    - "quais/liste" → não use LIMIT
-    - Retorne APENAS SQL
-    - Se a pergunta não corresponder aos dados do schema, retornar:
-       "Indisponível."
+    Regras:
+    {BASE_RULES}
+
+    SQL:
     """
 
     sql = ask_llm(prompt)
-    return limpar_sql(sql)
+    sql = limpar_sql(sql)
+
+    if sql.upper() == "INDISPONIVEL":
+        return "INDISPONIVEL"
+
+    return sql
 
 
-def corrigir_sql(sql, erro):
+def corrigir_sql(sql_atual, prompt_erro, schema):
     prompt = f"""
     A query abaixo deu erro:
 
-    {sql}
+    {sql_atual}
 
     Erro:
-    {erro}
+    {prompt_erro}
+
+    Schema:
+    {schema}
 
     Corrija a query SQL.
-    Retorne apenas SQL válida.
+
+    Regras:
+    - Retorne APENAS SQL
+    - NÃO explique nada
+    - NÃO escreva texto
+    - NÃO use markdown
+    - NÃO use ```
+    - Não invente colunas
+
+    SQL:
     """
 
     return limpar_sql(ask_llm(prompt))
@@ -69,10 +99,28 @@ def gerar_resposta(pergunta, df):
     prompt = f"""
     Pergunta: {pergunta}
 
-    Resultado:
+    Resultado (amostra):
     {preview}
 
+    Responda de forma objetiva, em português.
+    Destaque números importantes se houver.
+    Não invente informações.
     """
 
     return ask_llm(prompt)
 
+
+def explicar_resposta(pergunta, sql):
+    prompt = f"""
+    Explique de forma simples e curta como a query responde a pergunta.
+
+    Pergunta:
+    {pergunta}
+
+    SQL:
+    {sql}
+
+    Seja direto e didático.
+    """
+
+    return ask_llm(prompt)
