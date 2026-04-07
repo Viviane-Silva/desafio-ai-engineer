@@ -1,6 +1,6 @@
 from langgraph.graph import StateGraph, END
 from database.database import executar_sql
-from agent.nodes import gerar_sql, corrigir_sql, gerar_resposta
+from agents.nodes import gerar_sql, corrigir_sql, gerar_resposta
 from typing import TypedDict, Optional
 import pandas as pd
 

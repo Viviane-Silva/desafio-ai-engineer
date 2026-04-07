@@ -1,7 +1,8 @@
 import streamlit as st
-import database.database as db
-from agent.graph import criar_graph
-from agent.graph import escolher_grafico
+from database import database as db
+from agents.graph import criar_graph, escolher_grafico
+
+
 
 st.set_page_config(
     layout="wide",          

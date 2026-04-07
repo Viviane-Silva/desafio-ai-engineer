@@ -1,4 +1,4 @@
-from agent.llm import ask_llm
+from llm.client import ask_llm
 
 def limpar_sql(sql):
     return sql.replace("```sql", "").replace("```", "").strip()
