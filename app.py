@@ -42,10 +42,7 @@ with col2:
             "tentativas": 0
         })
 
-
-        with st.expander("SQL"):
-            st.code(resultado.get("sql"))
-
+        #resposta
         st.subheader("Resposta")
         st.write(resultado.get("resposta"))
 
@@ -73,3 +70,25 @@ with col2:
                         st.line_chart(df_plot)
                     else:
                         st.bar_chart(df_plot)
+    
+        with st.expander("🔍 Como cheguei nessa resposta", expanded=False):
+            st.code(resultado.get("sql"), language="sql")
+
+        col1, col2 = st.columns(2)
+
+        with col1:
+            st.markdown("**Tentativas**")
+            st.write(resultado.get("tentativas", 0))
+
+        with col2:
+            st.markdown("**Erro (se houve)**")
+            st.write(resultado.get("erro"))
+
+        if "historico_sql" in resultado:
+            st.markdown("### Histórico de SQL")
+            for i, sql in enumerate(resultado["historico_sql"]):
+                st.code(sql, language="sql")
+        
+        
+
+        

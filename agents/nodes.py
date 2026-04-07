@@ -1,10 +1,24 @@
 from llm.client import ask_llm
 
+
+def planejar(pergunta):
+    prompt = f"""
+    Quebre a pergunta em passos simples de análise de dados.
+
+    Pergunta:
+    {pergunta}
+
+    Retorne lista de passos.
+    """
+
+    resposta = ask_llm(prompt)
+    return resposta
+
 def limpar_sql(sql):
     return sql.replace("```sql", "").replace("```", "").strip()
 
 
-def gerar_sql(pergunta, schema):
+def gerar_sql(pergunta, schema, plano=None):
     prompt = f"""
     Você é especialista em SQL SQLite.
 
@@ -26,7 +40,7 @@ def gerar_sql(pergunta, schema):
     - "quais/liste" → não use LIMIT
     - Retorne APENAS SQL
     - Se a pergunta não corresponder aos dados do schema, retornar:
-       "Esta pergunta não pode ser atendida com os dados disponíveis."
+       "Indisponível."
     """
 
     sql = ask_llm(prompt)
@@ -61,3 +75,4 @@ def gerar_resposta(pergunta, df):
     """
 
     return ask_llm(prompt)
+
