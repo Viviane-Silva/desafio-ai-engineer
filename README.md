@@ -10,6 +10,7 @@ A solução atua como um **analista de dados júnior**, sendo capaz de:
 - Explorar o banco de dados dinamicamente (sem queries fixas)
 - Corrigir erros automaticamente
 - Apresentar respostas em formato adequado (tabela, gráfico ou valor único)
+- Mostrar transparência sobre o raciocínio (plano de análise, SQL executada, explicação)
 
 ---
 
@@ -21,6 +22,7 @@ Criar um sistema capaz de:
 - Consultar um banco SQLite
 - Lidar com erros de execução
 - Exibir visualizações adequadas
+- Mostrar como chegou à resposta
 
 ---
 
@@ -30,28 +32,12 @@ A solução foi construída utilizando um fluxo baseado em **agentes com LangGra
 
 ### 🔁 Fluxo do agente
 
-1. **Entrada do usuário**
-   - Pergunta em linguagem natural
-
-2. **Geração de SQL**
-   - O modelo interpreta a pergunta + schema do banco
-   - Gera uma query SQL válida
-
-3. **Execução da query**
-   - Consulta no SQLite
-   - Retorna DataFrame
-
-4. **Validação**
-   - Se erro → entra no loop de correção automática
-
-5. **Correção automática**
-   - O modelo ajusta a query com base no erro retornado
-
-6. **Resposta final**
-   - Retorna:
-     - SQL gerada
-     - Resultado
-     - Visualização adequada
+1. **Entrada do usuário** → Pergunta em linguagem natural.
+2. **Planejar** → Quebra a pergunta em passos de análise.
+3. **Gerar SQL** → Cria a query baseada no schema dinâmico.
+4. **Validação** → Se a query falhar ou não retornar dados, o sistema identifica o erro.
+5. **Correção automática** → O modelo ajusta a query com base no erro e tenta novamente.
+6. **Resposta final** → Retorna SQL, resultado e visualização adequada.
 
 ---
 
@@ -61,7 +47,7 @@ A solução foi construída utilizando um fluxo baseado em **agentes com LangGra
 - SQLite
 - Streamlit
 - LangGraph
-- LLM (Groq )
+- LLM (Groq)
 
 ---
 
@@ -92,6 +78,7 @@ pip install -r requirements.txt
 
 ```
 GROQ_API_KEY=your_key_here
+GROQ_MODEL=your_model_here
 ```
 
 ### 5. Rodar aplicação
@@ -106,3 +93,19 @@ streamlit run app.py
 - "Quantos clientes interagiram com campanhas de WhatsApp em 2024?"
 - "Qual o número de reclamações não resolvidas por canal?"
 - "Qual a tendência de reclamações por canal no último ano?"
+
+## 🔮 Melhorias Futuras
+
+- Suporte a mais tipos de gráficos (pizza, stacked bar, heatmap).
+- Exportar resultados para CSV/Excel.
+- Cache de consultas frequentes.
+- Suporte a múltiplos bancos de dados além de SQLite.
+- Autenticação e controle de acesso para uso corporativo.
+- Testes automatizados com conjunto de perguntas esperadas.
+
+## ✅ Testes e Validação
+O sistema foi validado com perguntas de negócio reais, verificando:
+   - Se a SQL gerada é válida e executável.
+   - Se erros são identificados e corrigidos automaticamente.
+   - Se a resposta final é coerente com os dados.
+   - Se a visualização escolhida é adequada ao tipo de pergunta.
