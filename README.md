@@ -4,6 +4,12 @@
 
 Este projeto implementa um **Assistente Virtual de Dados inteligente**, capaz de interpretar perguntas em linguagem natural e gerar automaticamente consultas SQL para responder perguntas de negócio.
 
+## Demonstração
+
+![Demonstração do sistema de reservas](./docs/gifDemonstracao.gif)
+
+> O GIF mostra o fluxo completo do assistente de dados: o usuário faz uma pergunta em linguagem natural, o sistema gera e executa a SQL correspondente, corrige erros automaticamente se necessário, e apresenta a resposta em tabela ou gráfico.
+
 A solução atua como um **analista de dados júnior**, sendo capaz de:
 
 - Entender perguntas abertas
@@ -78,13 +84,14 @@ pip install -r requirements.txt
 
 ```
 GROQ_API_KEY=your_key_here
-GROQ_MODEL=your_model_here
-```
+GROQ_MODEL=openai/gpt-oss-120b
 
 ### 5. Rodar aplicação
 
 ```
+
 streamlit run app.py
+
 ```
 
 ## 💬 Exemplos de Perguntas
@@ -94,18 +101,17 @@ streamlit run app.py
 - "Qual o número de reclamações não resolvidas por canal?"
 - "Qual a tendência de reclamações por canal no último ano?"
 
-## 🔮 Melhorias Futuras
+## 🔮 Melhorias Recentes
+- Pré-processamento de DataFrames para gráficos (linha, barra, pizza) dentro de graph.py.
+- Evita erros em Streamlit causados por colunas com tipos mistos (texto + números).
+- App mais limpo: lógica de preparação de dados para gráficos removida do app.py.
+- Garantia de fallback: se não houver dados numéricos, mostra tabela em vez de quebrar.
 
-- Suporte a mais tipos de gráficos (pizza, stacked bar, heatmap).
-- Exportar resultados para CSV/Excel.
-- Cache de consultas frequentes.
-- Suporte a múltiplos bancos de dados além de SQLite.
-- Autenticação e controle de acesso para uso corporativo.
-- Testes automatizados com conjunto de perguntas esperadas.
 
 ## ✅ Testes e Validação
 O sistema foi validado com perguntas de negócio reais, verificando:
-   - Se a SQL gerada é válida e executável.
-   - Se erros são identificados e corrigidos automaticamente.
-   - Se a resposta final é coerente com os dados.
-   - Se a visualização escolhida é adequada ao tipo de pergunta.
+   - SQL gerada continua válida e executável.
+   - Erros ainda são identificados e corrigidos automaticamente.
+   - Resposta final coerente com os dados.
+   - Visualização escolhida é adequada e segura, sem quebrar por tipos mistos.
+```
