@@ -160,6 +160,32 @@ def explicar_resposta(pergunta, sql):
     SQL:
     {sql}
 
+     Regras adicionais:
+    - Se a pergunta envolver proporções ou participação, destaque que a query mostra a distribuição relativa por categoria.
+    - Use termos como 'comparação', 'participação' ou 'proporção' para deixar claro o sentido.
+    - Evite conclusões extras, apenas explique como os dados respondem à pergunta.
+
     Explicação:
     """
     return ask_llm(prompt)
+
+# ----------------------
+# Escolher visualização
+# ----------------------
+def escolher_visualizacao(pergunta, df):
+    preview = df.head(10).to_string()
+    prompt = f"""
+    Pergunta: {pergunta}
+
+    Dados disponíveis:
+    {preview}
+
+     Escolha a melhor forma de visualização:
+    - tabela → quando a pergunta pede listagem ou ordenação
+    - barra → quando a pergunta compara categorias
+    - linha → quando há tendência temporal (datas, meses, anos)
+    - pizza → quando a pergunta envolve proporções ou participação
+
+    Retorne apenas UMA palavra em português: tabela, barra, linha ou pizza.
+    """
+    return ask_llm(prompt).strip().lower()

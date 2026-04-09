@@ -1,6 +1,7 @@
 import streamlit as st
+import matplotlib.pyplot as plt
 import database.database as db
-from agents.graph import criar_graph, escolher_grafico
+from agents.graph import criar_graph
 
 
 st.set_page_config(
@@ -56,17 +57,39 @@ with col2:
         df = resultado.get("df")
     
         if df is not None and not df.empty:
-            tipo = escolher_grafico(df)
-            if tipo in ["linha", "barra"]:
-                if len(df.columns) > 0:
-                    df_plot = df.copy()
-                    df_plot = df_plot.set_index(df_plot.columns[0])
+            if df.shape == (1, 1):
+                # já mostramos a resposta acima, não precisa renderizar tabela/gráfico
+                pass 
+            else:
+                tipo = resultado.get("visualizacao", "tabela").lower()
 
-                    if tipo == "linha":
-                        st.line_chart(df_plot)
+                # normaliza possíveis respostas em inglês
+                if tipo in ["line", "linha"]:
+                    tipo = "linha"
+                elif tipo in ["bar", "barra"]:
+                    tipo = "barra"
+                elif tipo in ["pie", "pizza"]:
+                    tipo = "pizza"
+                elif tipo in ["table", "tabela"]:
+                    tipo = "tabela"
+
+                if tipo == "linha":
+                    df_plot = df.set_index(df.columns[0])
+                    st.line_chart(df_plot)
+
+                elif tipo == "barra":
+                    df_plot = df.set_index(df.columns[0])
+                    st.bar_chart(df_plot)
+
+                elif tipo == "pizza":
+                    if df.shape[1] >= 2:  # precisa de pelo menos 2 colunas
+                        fig, ax = plt.subplots()
+                        df_plot = df.set_index(df.columns[0])
+                        ax.pie(df_plot.iloc[:, 0], labels=df_plot.index, autopct='%1.1f%%')
+                        st.pyplot(fig)
                     else:
-                        st.bar_chart(df_plot)
-
+                        # fallback: mostrar tabela se não houver dados suficientes
+                        st.dataframe(df)
         
 
         #  EXPLICAÇÃO (fora do visualizacao!)

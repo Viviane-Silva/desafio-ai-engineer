@@ -1,6 +1,6 @@
 from langgraph.graph import StateGraph, END
 from database.database import executar_sql
-from agents.nodes import gerar_sql, corrigir_sql, gerar_resposta, planejar, explicar_resposta
+from agents.nodes import gerar_sql, corrigir_sql, gerar_resposta, planejar, explicar_resposta, escolher_visualizacao
 from typing import TypedDict, Optional
 import pandas as pd
 
@@ -15,6 +15,7 @@ class State(TypedDict, total=False):
     df: Optional[pd.DataFrame]
     erro: Optional[str]
     resposta: Optional[str]
+    visualizacao: Optional[str]
     explicacao: Optional[str]
     tentativas: Optional[int]
     historico_sql: Optional[list[str]]
@@ -99,8 +100,14 @@ def node_responder(state):
 
     resposta = gerar_resposta(state["pergunta"], df)
     explicacao = explicar_resposta(state["pergunta"], state.get("sql", ""))
+    visualizacao = escolher_visualizacao(state["pergunta"], df)
 
-    return {**state, "resposta": resposta, "explicacao": explicacao}
+    return {
+            **state, 
+            "resposta": resposta, 
+            "explicacao": explicacao,
+            "visualizacao":visualizacao
+        }
 
 # ----------------------
 # Decisão do fluxo
@@ -115,22 +122,6 @@ def decidir(state):
         return "corrigir"
     return "ok"
 
-# ----------------------
-# Escolha de visualização
-# ----------------------
-def escolher_grafico(df):
-    if df is None or df.empty:
-        return "tabela"
-
-    colunas = [col.lower() for col in df.columns]
-
-    if any("data" in c or "mes" in c or "ano" in c for c in colunas):
-        return "linha"
-
-    if len(df.columns) == 2:
-        return "barra"
-
-    return "tabela"
 
 # ----------------------
 # Criação do grafo
