@@ -85,13 +85,12 @@ pip install -r requirements.txt
 ```
 GROQ_API_KEY=your_key_here
 GROQ_MODEL=openai/gpt-oss-120b
+```
 
 ### 5. Rodar aplicação
 
 ```
-
 streamlit run app.py
-
 ```
 
 ## 💬 Exemplos de Perguntas
@@ -114,4 +113,3 @@ O sistema foi validado com perguntas de negócio reais, verificando:
    - Erros ainda são identificados e corrigidos automaticamente.
    - Resposta final coerente com os dados.
    - Visualização escolhida é adequada e segura, sem quebrar por tipos mistos.
-```
