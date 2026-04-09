@@ -1,7 +1,7 @@
 import streamlit as st
 import matplotlib.pyplot as plt
 import database.database as db
-from agents.graph import criar_graph
+from agents.graph import criar_graph, preparar_df_grafico
 
 
 st.set_page_config(
@@ -73,23 +73,33 @@ with col2:
                 elif tipo in ["table", "tabela"]:
                     tipo = "tabela"
 
+
+                # prepara df para gráfico
+                df_plot = preparar_df_grafico(df, tipo)
+        
                 if tipo == "linha":
-                    df_plot = df.set_index(df.columns[0])
-                    st.line_chart(df_plot)
-
+                    if df_plot.empty:
+                        st.warning("Não há dados numéricos suficientes para o gráfico.")
+                    else:
+                        st.line_chart(df_plot)
+        
                 elif tipo == "barra":
-                    df_plot = df.set_index(df.columns[0])
-                    st.bar_chart(df_plot)
-
+                    if df_plot.empty:
+                        st.dataframe(df)
+                    else:
+                        st.bar_chart(df_plot)
+        
                 elif tipo == "pizza":
-                    if df.shape[1] >= 2:  # precisa de pelo menos 2 colunas
+                    if df_plot.empty or df_plot.iloc[:, 0].isna().all():
+                        st.dataframe(df)
+                    else:
                         fig, ax = plt.subplots()
-                        df_plot = df.set_index(df.columns[0])
                         ax.pie(df_plot.iloc[:, 0], labels=df_plot.index, autopct='%1.1f%%')
                         st.pyplot(fig)
-                    else:
-                        # fallback: mostrar tabela se não houver dados suficientes
-                        st.dataframe(df)
+        
+                else:
+                    # fallback: tabela
+                    st.dataframe(df)
         
 
         #  EXPLICAÇÃO (fora do visualizacao!)

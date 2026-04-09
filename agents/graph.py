@@ -124,6 +124,40 @@ def decidir(state):
 
 
 # ----------------------
+# Função utilitária para preparar DataFrame para gráficos
+# ----------------------
+
+
+def preparar_df_grafico(df: pd.DataFrame, tipo: str) -> pd.DataFrame:
+    """
+    Normaliza colunas numéricas para gráficos Streamlit.
+    Args:
+        df: DataFrame original
+        tipo: tipo de gráfico ('linha', 'barra', 'pizza', 'tabela')
+    Returns:
+        df_plot pronto para plotagem
+    """
+    if df is None or df.empty:
+        return pd.DataFrame()
+
+    df_plot = df.copy()
+
+    if tipo in ["linha", "barra"]:
+        df_plot = df_plot.set_index(df_plot.columns[0])
+        for col in df_plot.columns:
+            df_plot[col] = pd.to_numeric(df_plot[col], errors="coerce")
+        df_plot = df_plot.dropna(axis=1, how="all")
+
+    elif tipo == "pizza":
+        df_plot = df_plot.set_index(df_plot.columns[0])
+        df_plot.iloc[:, 0] = pd.to_numeric(df_plot.iloc[:, 0], errors="coerce")
+
+    # para 'tabela' não altera nada
+    return df_plot
+
+
+
+# ----------------------
 # Criação do grafo
 # ----------------------
 def criar_graph():
