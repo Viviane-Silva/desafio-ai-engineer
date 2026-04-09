@@ -53,16 +53,41 @@ def aplicar_lower_trim(sql):
 # ----------------------
 def gerar_sql(pergunta, schema, plano=None):
     BASE_RULES = """
-    - Retorne SOMENTE SQL
-    - Use apenas o schema fornecido
-    - Use LOWER(TRIM()) para texto
-    - Use GROUP BY corretamente
-    - Use ORDER BY DESC quando fizer sentido
-    - Use LIMIT apenas se explicitamente pedido
-    - Para clientes: COUNT(DISTINCT cliente_id)
-    - Para datas: STRFTIME
-    - Se não for possível responder, retorne 'INDISPONIVEL'
-    """
+- Retorne SOMENTE SQL válida em SQLite
+- Use apenas o schema fornecido
+- Use LOWER(TRIM()) para comparar textos
+- Use GROUP BY e ORDER BY corretamente
+- Use LIMIT apenas se explicitamente pedido
+- Para datas: use STRFTIME
+- Se não for possível responder com o schema, retorne 'INDISPONIVEL'
+
+Interpretação da pergunta:
+- "número de clientes" → COUNT(DISTINCT cliente_id)
+- "número de produtos" → COUNT(DISTINCT produto_id)
+- "média por X" → COUNT(*) / COUNT(DISTINCT X)
+- Atributos de cliente (estado, idade, etc.) → JOIN com tabela clientes
+- "interagiram" → filtro interagiu = 1
+- Canais (app, WhatsApp, etc.) → filtro em coluna canal
+- Períodos (ano, mês, etc.) → filtro com STRFTIME
+
+Exemplos:
+1. Estados com maior número de clientes →
+   SELECT clientes.estado, COUNT(DISTINCT compras.cliente_id)
+   FROM compras JOIN clientes ON compras.cliente_id = clientes.id
+   GROUP BY clientes.estado ORDER BY COUNT(DISTINCT compras.cliente_id) DESC;
+
+2. Média de compras por cliente →
+   SELECT categoria, COUNT(*) / COUNT(DISTINCT cliente_id)
+   FROM compras GROUP BY categoria;
+
+3. Clientes que interagiram com campanhas de WhatsApp em 2024 →
+   SELECT COUNT(DISTINCT cliente_id)
+   FROM campanhas_marketing
+   WHERE LOWER(TRIM(canal)) = 'whatsapp'
+     AND STRFTIME('%Y', data_envio) = '2024'
+     AND interagiu = 1;
+"""
+
     prompt = f"""
     Você é especialista em SQL SQLite.
 
